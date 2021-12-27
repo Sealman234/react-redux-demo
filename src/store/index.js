@@ -1,12 +1,11 @@
-import { createStore } from 'redux';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, configureStore } from '@reduxjs/toolkit';
 
 const initialState = {
   counter: 0,
   showCounter: true,
 };
 
-createSlice({
+const counterSlice = createSlice({
   name: 'counter',
   initialState: initialState,
   reducers: {
@@ -17,52 +16,31 @@ createSlice({
     decrement(state) {
       state.counter--;
     },
-    // 加上 action 因為需要其他參數
+    // 加上 action 因為需要 payload
     increase(state, action) {
-      state.counter = state.counter + action.amount;
+      state.counter = state.counter + action.payload;
     },
-    toggle(state) {
+    toggleCounter(state) {
       state.showCounter = !state.showCounter;
     },
   },
 });
 
-// Mutations, set initial State
-const counterReducer = (state = initialState, action) => {
-  if (action.type === 'INCREMENT') {
-    return { counter: state.counter + 1, showCounter: state.showCounter };
-  }
+const store = configureStore({
+  reducer: counterSlice.reducer,
+});
 
-  if (action.type === 'INCREASE') {
-    return {
-      counter: state.counter + action.amount,
-      showCounter: state.showCounter,
-    };
-  }
+// const counterSubscriber = () => {
+//   const latestState = store.getState();
+//   console.log(latestState);
+// };
+// store.subscribe(counterSubscriber);
 
-  if (action.type === 'DECREMENT') {
-    return { counter: state.counter - 1, showCounter: state.showCounter };
-  }
+// store.dispatch({ type: 'INCREMENT' });
+// store.dispatch({ type: 'DECREMENT' });
 
-  if (action.type === 'TOGGLE') {
-    return { counter: state.counter, showCounter: !state.showCounter };
-  }
-
-  return state;
-};
-
-// Create Redux store
-const store = createStore(counterReducer);
-
-// Getters
-const counterSubscriber = () => {
-  const latestState = store.getState();
-  console.log(latestState);
-};
-store.subscribe(counterSubscriber);
-
-// Actions
-store.dispatch({ type: 'INCREMENT' });
-store.dispatch({ type: 'DECREMENT' });
+// counterSlice.actions.toggleCounter() 會回傳一個自動生成的 action 物件 => {type: 'some auto-generated unique identifier'}
+// 因此我們可以導出 counterSlice.actions 物件去元件中做使用
+export const counterActions = counterSlice.actions;
 
 export default store;
